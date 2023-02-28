@@ -57,11 +57,22 @@ jobs:
                     mkdir -p $SONAR_SCANNER_PATH
                     dotnet tool update dotnet-sonarscanner --tool-path $SONAR_SCANNER_PATH
             -   name: Begin Sonar analysis
-                run: $SONAR_SCANNER begin /k:"Thurstag_variant" /o:"thurst" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=variant-tests/coverage.opencover.xml
+                run: >-
+                    $SONAR_SCANNER begin 
+                    /k:"Thurstag_variant" 
+                    /o:"thurst" 
+                    /d:sonar.login="${{ secrets.SONAR_TOKEN }}" 
+                    /d:sonar.host.url="https://sonarcloud.io" 
+                    /d:sonar.cs.opencover.reportsPaths=variant-tests/coverage.opencover.xml
             -   name: Build project
                 uses: ./.github/workflows/build-project
             -   name: Run tests
-                run: dotnet test . -l "console;verbosity=detailed" /p:CollectCoverage=true /p:ExcludeByFile=\"variant-benchmarks/**/*.cs\" /p:CoverletOutputFormat=opencover
+                run: >-
+                    dotnet test . 
+                    -l "console;verbosity=detailed" 
+                    /p:CollectCoverage=true 
+                    /p:ExcludeByFile=\"variant-benchmarks/**/*.cs\" 
+                    /p:CoverletOutputFormat=opencover
             -   name: End Sonar analysis
                 run: $SONAR_SCANNER end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
     build-docs:
