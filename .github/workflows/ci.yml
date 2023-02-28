@@ -9,6 +9,10 @@ on:
             - "*"
     workflow_dispatch:
 
+env:
+    SONAR_SCANNER_PATH: .sonar/scanner
+    SONAR_SCANNER: .sonar/scanner/dotnet-sonarscanner
+
 jobs:
     format:
         name: Verify coding rules compliance
@@ -44,22 +48,22 @@ jobs:
                 id: cache-sonar-scanner
                 uses: actions/cache@v1
                 with:
-                    path: .sonar/scanner
+                    path: ${{ env.SONAR_SCANNER_PATH }}
                     key: ${{ runner.os }}-sonar-scanner
                     restore-keys: ${{ runner.os }}-sonar-scanner
             -   name: Install SonarCloud scanner
                 if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
                 run: |
-                    mkdir -p .sonar/scanner
-                    dotnet tool update dotnet-sonarscanner --tool-path .sonar/scanner
+                    mkdir -p $SONAR_SCANNER_PATH
+                    dotnet tool update dotnet-sonarscanner --tool-path $SONAR_SCANNER_PATH
             -   name: Begin Sonar analysis
-                run: .sonar/scanner/dotnet-sonarscanner begin /k:"Thurstag_variant" /o:"thurst" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=variant-tests/coverage.opencover.xml
+                run: $SONAR_SCANNER begin /k:"Thurstag_variant" /o:"thurst" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=variant-tests/coverage.opencover.xml
             -   name: Build project
                 uses: ./.github/workflows/build-project
             -   name: Run tests
                 run: dotnet test . -l "console;verbosity=detailed" /p:CollectCoverage=true /p:ExcludeByFile=\"variant-benchmarks/**/*.cs\" /p:CoverletOutputFormat=opencover
             -   name: End Sonar analysis
-                run: .sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+                run: $SONAR_SCANNER end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
     build-docs:
         name: Build documentation
         runs-on: ubuntu-latest
