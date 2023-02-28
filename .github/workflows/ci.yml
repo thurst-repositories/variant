@@ -9,10 +9,6 @@ on:
             - "*"
     workflow_dispatch:
 
-env:
-    SONAR_SCANNER_PATH: .sonar/scanner
-    SONAR_SCANNER: .sonar/scanner/dotnet-sonarscanner
-
 jobs:
     format:
         name: Verify coding rules compliance
@@ -38,43 +34,20 @@ jobs:
         steps:
             -   name: Checkout project
                 uses: actions/checkout@v3
-            -   name: Cache SonarCloud packages
-                uses: actions/cache@v1
+            -   name: Scan project
+                env:
+                    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+                if: env.SONAR_TOKEN != ''
+                uses: ./.github/workflows/scan-project
                 with:
-                    path: ~/sonar/cache
-                    key: ${{ runner.os }}-sonar
-                    restore-keys: ${{ runner.os }}-sonar
-            -   name: Cache SonarCloud scanner
-                id: cache-sonar-scanner
-                uses: actions/cache@v1
-                with:
-                    path: ${{ env.SONAR_SCANNER_PATH }}
-                    key: ${{ runner.os }}-sonar-scanner
-                    restore-keys: ${{ runner.os }}-sonar-scanner
-            -   name: Install SonarCloud scanner
-                if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-                run: |
-                    mkdir -p $SONAR_SCANNER_PATH
-                    dotnet tool update dotnet-sonarscanner --tool-path $SONAR_SCANNER_PATH
-            -   name: Begin Sonar analysis
-                run: >-
-                    $SONAR_SCANNER begin 
-                    /k:"Thurstag_variant" 
-                    /o:"thurst" 
-                    /d:sonar.login="${{ secrets.SONAR_TOKEN }}" 
-                    /d:sonar.host.url="https://sonarcloud.io" 
-                    /d:sonar.cs.opencover.reportsPaths=variant-tests/coverage.opencover.xml
-            -   name: Build project
-                uses: ./.github/workflows/build-project
+                    project-key: ${{ secrets.SONAR_PROJECT_KEY }}
+                    organization: ${{ secrets.SONAR_ORGANIZATION }}
+                    token: ${{ secrets.SONAR_TOKEN }}
             -   name: Run tests
-                run: >-
-                    dotnet test . 
-                    -l "console;verbosity=detailed" 
-                    /p:CollectCoverage=true 
-                    /p:ExcludeByFile=\"variant-benchmarks/**/*.cs\" 
-                    /p:CoverletOutputFormat=opencover
-            -   name: End Sonar analysis
-                run: $SONAR_SCANNER end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+                env:
+                    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+                if: env.SONAR_TOKEN == ''
+                uses: ./.github/workflows/test-project
     build-docs:
         name: Build documentation
         runs-on: ubuntu-latest
