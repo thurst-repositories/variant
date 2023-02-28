@@ -17,7 +17,7 @@ inputs:
         required: true
 
 runs: 
-    using: "composite"
+    using: composite
     steps:
         -   name: Cache SonarCloud packages
             uses: actions/cache@v1
@@ -37,6 +37,7 @@ runs:
             run: |
                 mkdir -p ${{ inputs.sonar-scanner-path }}
                 dotnet tool update dotnet-sonarscanner --tool-path ${{ inputs.sonar-scanner-path }}
+            shell: bash
         -   name: Begin Sonar analysis
             run: >-
                 ${{ inputs.sonar-scanner-path }}/dotnet-sonarscanner begin 
@@ -45,9 +46,11 @@ runs:
                 /d:sonar.login="${{ inputs.token }}" 
                 /d:sonar.host.url="https://sonarcloud.io" 
                 /d:sonar.cs.opencover.reportsPaths=variant-tests/coverage.opencover.xml
+            shell: bash
         -   name: Run tests
             uses: ./.github/workflows/test-project
         -   name: End Sonar analysis
             run: >-
                 ${{ inputs.sonar-scanner-path }}/dotnet-sonarscanner end 
                 /d:sonar.login="${{ inputs.token }}"
+            shell: bash
