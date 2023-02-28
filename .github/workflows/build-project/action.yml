@@ -13,11 +13,9 @@ runs:
         -   name: Set up dotnet environment
             uses: actions/setup-dotnet@v3
             with:
-                dotnet-version: ${{inputs.dotnet-version}}
+                dotnet-version: ${{ inputs.dotnet-version }}
         -   name: Set up dotnet tools
             run: dotnet tool restore
-            shell: bash
         -   name: Build dotnet solution
             # Build variant first to avoid compilation errors in projects referencing variant library
             run: dotnet build variant ; dotnet build .
-            shell: bash
