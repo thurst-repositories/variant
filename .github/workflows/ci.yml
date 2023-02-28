@@ -36,7 +36,7 @@ jobs:
             -   name: Verify commits
                 uses: wagoid/commitlint-github-action@v5
                 with:
-                    helpURL: https://github.com/Thurstag/variant/blob/develop/CONTRIBUTING.md#commits
+                    helpURL: https://github.com/thurst-repositories/variant/blob/develop/CONTRIBUTING.md#commits
     test:
         name: Run tests
         runs-on: ubuntu-latest
