@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!-- Source properties -->
+    <PropertyGroup>
+        <RootNamespace>$(Namespace).Benchmarks</RootNamespace>
+    </PropertyGroup>
+    
+    <!-- Assembly properties -->
+    <PropertyGroup>
+        <AssemblyName>$(RootAssembly).Benchmarks</AssemblyName>
+        
+        <OutputType>Exe</OutputType>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <!-- Dependencies -->
+    <ItemGroup>
+        <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
+        
+        <ProjectReference Include="..\variant\variant.csproj" />
+        <PackageReference Include="OneOf" Version="3.0.223" />
+        <PackageReference Include="Union" Version="0.0.3" />
+    </ItemGroup>
+</Project>

@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!-- Source properties -->
+    <PropertyGroup>
+        <RootNamespace>$(Namespace).Tests</RootNamespace>
+    </PropertyGroup>
+
+    <!-- Assembly properties -->
+    <PropertyGroup>
+        <AssemblyName>$(RootAssembly).Tests</AssemblyName>
+        
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <!-- T4 -->
+    <Target Name="GenerateSource" BeforeTargets="BeforeBuild">
+        <Exec Command="dotnet t4 ../%(TextTemplate.Identity) -o %(TextTemplate.Filename).Generated.cs -p:VariantArgumentTypesCount=$(VariantArgumentTypesCount)" WorkingDirectory="$(ProjectDir)/src" />
+    </Target>
+    <Target Name="CleanGeneratedSource" AfterTargets="Clean">
+        <Delete Files="@(Generated)" />
+    </Target>
+    <ItemGroup>
+        <TextTemplate Include="**/*.tt" />
+        <Generated Include="**/*.Generated.cs" />
+
+        <PackageReference Include="Mono.TextTemplating" Version="2.2.1">
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+    
+    <!-- Dependencies -->
+    <ItemGroup>
+        <ProjectReference Include="..\variant\variant.csproj" />
+        
+        <PackageReference Include="NUnit" Version="3.13.2" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+
+        <PackageReference Include="coverlet.msbuild" Version="3.2.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+</Project>
