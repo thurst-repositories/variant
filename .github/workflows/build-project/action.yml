@@ -8,12 +8,12 @@ inputs:
         default: 7.x
 
 runs:
-    using: "composite"
+    using: composite
     steps:
         -   name: Set up dotnet environment
             uses: actions/setup-dotnet@v3
             with:
-                dotnet-version: ${{inputs.dotnet-version}}
+                dotnet-version: ${{ inputs.dotnet-version }}
         -   name: Set up dotnet tools
             run: dotnet tool restore
             shell: bash

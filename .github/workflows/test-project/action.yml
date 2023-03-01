@@ -1,0 +1,16 @@
+name: Test project
+description: Run tests with coverage
+
+runs: 
+    using: composite
+    steps:
+        -   name: Build project
+            uses: ./.github/workflows/build-project
+        -   name: Run tests
+            run: >-
+                dotnet test . 
+                -l "console;verbosity=detailed" 
+                /p:CollectCoverage=true 
+                /p:ExcludeByFile=\"variant-benchmarks/**/*.cs\" 
+                /p:CoverletOutputFormat=opencover
+            shell: bash
