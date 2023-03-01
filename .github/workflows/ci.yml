@@ -34,19 +34,23 @@ jobs:
         steps:
             -   name: Checkout project
                 uses: actions/checkout@v3
+            -   name: Check SONAR_TOKEN definition
+                id: sonar-token-check
+                run: |
+                    if [ "${{ secrets.SONAR_TOKEN }}" != '' ]; then
+                    echo "defined=true" >> $GITHUB_OUTPUT;
+                    else
+                    echo "defined=false" >> $GITHUB_OUTPUT;
+                    fi
             -   name: Scan project
-                env:
-                    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-                if: env.SONAR_TOKEN != ''
+                if: steps.sonar-token-check.outputs.defined == 'true'
                 uses: ./.github/workflows/scan-project
                 with:
                     project-key: ${{ secrets.SONAR_PROJECT_KEY }}
                     organization: ${{ secrets.SONAR_ORGANIZATION }}
                     token: ${{ secrets.SONAR_TOKEN }}
             -   name: Run tests
-                env:
-                    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-                if: env.SONAR_TOKEN == ''
+                if: steps.sonar-token-check.outputs.defined == 'false'
                 uses: ./.github/workflows/test-project
     build-docs:
         name: Build documentation
